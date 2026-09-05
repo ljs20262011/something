@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Heart, Trophy, Leaf, RefreshCw, Shield, Award } from 'lucide-react';
+import { Sparkles, Heart, Trophy, Leaf, RefreshCw, Shield, Award, RotateCcw } from 'lucide-react';
 import { CharacterState } from '../types';
 import { CHARACTER_STAGES } from '../data/ecoData';
 
@@ -8,9 +8,15 @@ interface EcoCharacterProps {
   character: CharacterState;
   onInteract: () => void;
   compact?: boolean;
+  onReset?: () => void;
 }
 
-export const EcoCharacter: React.FC<EcoCharacterProps> = ({ character, onInteract, compact = false }) => {
+export const EcoCharacter: React.FC<EcoCharacterProps> = ({
+  character,
+  onInteract,
+  compact = false,
+  onReset
+}) => {
   const [bubbleText, setBubbleText] = useState<string>(character.activeQuote);
   const [isWiggling, setIsWiggling] = useState(false);
 
@@ -83,9 +89,24 @@ export const EcoCharacter: React.FC<EcoCharacterProps> = ({ character, onInterac
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-[#1B4332] font-bold bg-[#D8F3DC] border border-[#B7E4C7] px-3 py-1 rounded-full shadow-xs">
-          <Sparkles className="w-3.5 h-3.5 text-[#2D6A4F]" />
-          <span>{character.totalEcoPoints.toLocaleString()} P</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 text-xs text-[#1B4332] font-bold bg-[#D8F3DC] border border-[#B7E4C7] px-3 py-1 rounded-full shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#2D6A4F]" />
+            <span>{character.totalEcoPoints.toLocaleString()} P</span>
+          </div>
+          {onReset && (
+            <button
+              id="btn-character-card-reset"
+              onClick={e => {
+                e.stopPropagation();
+                onReset();
+              }}
+              title="레벨 및 활동 기록 초기화"
+              className="p-1.5 bg-[#F8FAFC] hover:bg-rose-50 text-[#52796F] hover:text-rose-600 border border-[#E2E8F0] hover:border-rose-300 rounded-full transition-all shadow-xs cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
 

@@ -9,6 +9,7 @@ import {
   BookOpen,
   Award,
   Zap,
+  RotateCcw,
   ArrowRight,
   ShieldCheck,
   Globe
@@ -18,12 +19,14 @@ import { TabType } from '../types';
 interface PresentationGuideProps {
   onNavigateTab: (tab: TabType) => void;
   onInstantLevelUp: () => void;
+  onResetLevel?: () => void;
   currentLevel: number;
 }
 
 export const PresentationGuide: React.FC<PresentationGuideProps> = ({
   onNavigateTab,
   onInstantLevelUp,
+  onResetLevel,
   currentLevel
 }) => {
   const presentationModules = [
@@ -104,7 +107,7 @@ export const PresentationGuide: React.FC<PresentationGuideProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               id="btn-demo-level-up"
               onClick={onInstantLevelUp}
@@ -113,6 +116,16 @@ export const PresentationGuide: React.FC<PresentationGuideProps> = ({
               <Zap className="w-4 h-4 text-amber-300" />
               캐릭터 즉시 성장 시연 (현재 Lv.{currentLevel})
             </button>
+            {onResetLevel && (
+              <button
+                id="btn-demo-reset-level"
+                onClick={onResetLevel}
+                className="flex items-center gap-2 px-4 py-2.5 bg-[#F8FAFC] hover:bg-rose-50 text-[#52796F] hover:text-rose-700 border border-[#E2E8F0] hover:border-rose-300 font-bold text-xs rounded-xl transition-all shadow-xs cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4 text-rose-500" />
+                레벨·통계 초기화
+              </button>
+            )}
           </div>
         </div>
       </div>

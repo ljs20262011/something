@@ -15,7 +15,9 @@ import {
   Globe,
   CheckCircle2,
   TrendingUp,
-  Volume2
+  Volume2,
+  RotateCcw,
+  AlertTriangle
 } from 'lucide-react';
 import { TabType, CharacterState } from './types';
 import { CHARACTER_STAGES } from './data/ecoData';
@@ -26,9 +28,32 @@ import { ClimateEducation } from './components/ClimateEducation';
 import { EcoCharacter } from './components/EcoCharacter';
 import { PresentationGuide } from './components/PresentationGuide';
 
+const INITIAL_CHARACTER_STATE: CharacterState = {
+  name: '에코링',
+  level: 1,
+  exp: 0,
+  maxExp: 100,
+  vitality: 100,
+  stageTitle: CHARACTER_STAGES[0].title,
+  stageDescription: '지구의 푸른 미래를 품은 작은 생명의 씨앗입니다.',
+  mood: 'happy',
+  activeQuote: CHARACTER_STAGES[0].dialogues[0],
+  totalEcoPoints: 0,
+  co2SavedKg: 0.0,
+  badges: ['첫 걸음 환경 지킴이', '분리배출 새싹'],
+  stats: {
+    gameScore: 0,
+    quizzesSolved: 0,
+    postersMade: 0,
+    chatsSent: 0
+  }
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('game');
   const [showLevelUpModal, setShowLevelUpModal] = useState<boolean>(false);
+  const [showResetConfirmModal, setShowResetConfirmModal] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [newlyUnlockedStage, setNewlyUnlockedStage] = useState<any>(null);
 
   // Global Eco Character State
@@ -134,6 +159,17 @@ export default function App() {
     handleEarnExp(150, 200, 1.5);
   };
 
+  // Reset Level & Environmental Progress to Initial Seed State
+  const handleResetProgress = () => {
+    localStorage.removeItem('ecosphere_character_data');
+    setCharacter(INITIAL_CHARACTER_STATE);
+    setShowResetConfirmModal(false);
+    setToastMessage('에코 캐릭터 레벨과 친환경 활동 데이터가 성공적으로 초기화되었습니다.');
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3500);
+  };
+
   // Character Touch Interaction
   const handleCharacterInteract = () => {
     setCharacter(prev => {
@@ -188,13 +224,22 @@ export default function App() {
             </div>
           </div>
 
-          {/* Center / Right Companion Status Badge */}
-          <div className="flex items-center gap-3">
+          {/* Center / Right Companion Status Badge & Reset Button */}
+          <div className="flex items-center gap-2">
             <EcoCharacter
               character={character}
               onInteract={handleCharacterInteract}
               compact
             />
+            <button
+              id="btn-header-reset-level"
+              onClick={() => setShowResetConfirmModal(true)}
+              title="레벨 및 친환경 활동 데이터 초기화"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-rose-50 text-[#52796F] hover:text-rose-700 border border-[#E2E8F0] hover:border-rose-300 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-rose-500" />
+              <span className="hidden sm:inline">초기화</span>
+            </button>
           </div>
         </div>
 
@@ -259,6 +304,7 @@ export default function App() {
                   <EcoCharacter
                     character={character}
                     onInteract={handleCharacterInteract}
+                    onReset={() => setShowResetConfirmModal(true)}
                   />
                 </div>
               </div>
@@ -281,6 +327,7 @@ export default function App() {
                   <EcoCharacter
                     character={character}
                     onInteract={handleCharacterInteract}
+                    onReset={() => setShowResetConfirmModal(true)}
                   />
                 </div>
               </div>
@@ -297,6 +344,7 @@ export default function App() {
                 <EcoCharacter
                   character={character}
                   onInteract={handleCharacterInteract}
+                  onReset={() => setShowResetConfirmModal(true)}
                 />
 
                 <div className="bg-white border border-[#E2E8F0] rounded-3xl p-6 shadow-sm space-y-4">
@@ -339,6 +387,34 @@ export default function App() {
                     에코스피어에서 분리배출 게임을 하거나, AI 포스터를 제작해 전시하고, 온난화 퀴즈를 풀면 경험치와 탄소 감축량이 쌓여 캐릭터가 계속해서 다음 단계로 성장합니다.
                   </div>
                 </div>
+
+                {/* Level & Data Reset Management Card */}
+                <div className="bg-white border border-[#E2E8F0] rounded-3xl p-6 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold px-2 py-0.5 bg-rose-100 text-rose-800 rounded-md border border-rose-200">
+                          데이터 관리
+                        </span>
+                        <h4 className="text-sm font-bold text-[#1B4332] flex items-center gap-1.5">
+                          <RotateCcw className="w-4 h-4 text-rose-600" />
+                          캐릭터 레벨 및 누적 활동 초기화
+                        </h4>
+                      </div>
+                      <p className="text-xs text-[#52796F] mt-1.5 leading-relaxed max-w-xl">
+                        처음부터 새롭게 에코링을 키우고 싶거나 수업·발표 시연을 위해 레벨과 데이터를 초기 상태(Lv.1 새싹)로 되돌릴 수 있습니다.
+                      </p>
+                    </div>
+                    <button
+                      id="btn-character-room-reset"
+                      onClick={() => setShowResetConfirmModal(true)}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 hover:border-rose-300 font-bold text-xs rounded-xl transition-all shadow-xs cursor-pointer whitespace-nowrap"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      레벨 및 데이터 초기화
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -346,6 +422,7 @@ export default function App() {
               <PresentationGuide
                 onNavigateTab={tab => setActiveTab(tab)}
                 onInstantLevelUp={handleInstantLevelUp}
+                onResetLevel={() => setShowResetConfirmModal(true)}
                 currentLevel={character.level}
               />
             )}
@@ -411,6 +488,87 @@ export default function App() {
           </motion.div>
         </div>
       )}
+
+      {/* Reset Confirmation Modal */}
+      {showResetConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white border-2 border-rose-200 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative overflow-hidden"
+          >
+            <div className="w-16 h-16 mx-auto rounded-3xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mb-4">
+              <RotateCcw className="w-8 h-8" />
+            </div>
+
+            <div className="text-center">
+              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                데이터 초기화 확인
+              </span>
+              <h3 className="text-xl font-black text-[#1B4332] mt-2.5">
+                레벨과 활동 기록을 초기화할까요?
+              </h3>
+              <p className="text-xs text-[#52796F] mt-2 leading-relaxed">
+                초기화 시 에코링 캐릭터가 <span className="font-bold text-[#1B4332]">Lv.1 새싹 단계</span>로 돌아가며, 누적된 포인트와 탄소 감축량이 재설정됩니다.
+              </p>
+            </div>
+
+            {/* Before vs After Summary */}
+            <div className="my-5 p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl space-y-2 text-xs">
+              <div className="flex items-center justify-between text-[#52796F]">
+                <span>현재 상태</span>
+                <span className="font-bold text-[#1B4332]">Lv.{character.level} ({character.stageTitle})</span>
+              </div>
+              <div className="flex items-center justify-between text-[#52796F]">
+                <span>누적 에코 포인트</span>
+                <span className="font-bold text-[#2D6A4F]">{character.totalEcoPoints.toLocaleString()} P</span>
+              </div>
+              <div className="flex items-center justify-between text-[#52796F]">
+                <span>탄소 감축 기여량</span>
+                <span className="font-bold text-[#1B4332]">{character.co2SavedKg.toFixed(1)} kg</span>
+              </div>
+              <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-between font-bold text-rose-600">
+                <span>초기화 후</span>
+                <span>Lv.1 새싹 (0 P / 0.0 kg)</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                id="btn-cancel-reset"
+                onClick={() => setShowResetConfirmModal(false)}
+                className="flex-1 py-3 bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#475569] font-bold text-xs rounded-xl transition-all cursor-pointer"
+              >
+                취소
+              </button>
+              <button
+                id="btn-confirm-reset"
+                onClick={handleResetProgress}
+                className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                초기화 실행
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Floating Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#1B4332] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold border border-[#2D6A4F]"
+          >
+            <CheckCircle2 className="w-4 h-4 text-[#52B788]" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
