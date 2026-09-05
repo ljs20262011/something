@@ -246,10 +246,12 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
       {/* Top Navigation Mode Tabs */}
       <div className="flex items-center justify-between bg-white border border-[#E2E8F0] p-1.5 rounded-2xl shadow-xs">
         <div className="flex gap-2">
-          <button
+          <motion.button
             id="tab-poster-create"
             onClick={() => setActiveSubTab('create')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-colors ${
               activeSubTab === 'create'
                 ? 'bg-[#2D6A4F] text-white shadow-xs'
                 : 'text-[#52796F] hover:text-[#1B4332] hover:bg-[#F4F7F5]'
@@ -257,11 +259,13 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
           >
             <Sparkles className="w-4 h-4" />
             AI 환경 포스터 제작 스튜디오
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             id="tab-poster-gallery"
             onClick={() => setActiveSubTab('gallery')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-colors ${
               activeSubTab === 'gallery'
                 ? 'bg-[#2D6A4F] text-white shadow-xs'
                 : 'text-[#52796F] hover:text-[#1B4332] hover:bg-[#F4F7F5]'
@@ -269,7 +273,7 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
           >
             <ImageIcon className="w-4 h-4" />
             시민 환경 포스터 전시관 ({posters.length})
-          </button>
+          </motion.button>
         </div>
 
         <span className="hidden sm:inline-block text-xs text-[#52796F] font-medium px-3">
@@ -277,43 +281,53 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
         </span>
       </div>
 
-      {activeSubTab === 'create' ? (
-        /* CREATE POSTER VIEW */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Controls & Prompt Form (Left) */}
-          <div className="lg:col-span-6 space-y-5 bg-white border border-[#E2E8F0] rounded-3xl p-6 shadow-sm">
-            <div>
-              <h3 className="text-lg font-black text-[#1B4332] flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#2D6A4F]" />
-                AI 포스터 콘셉트 기획
-              </h3>
-              <p className="text-xs text-[#52796F] mt-1 font-medium">
-                주제와 대상, 분위기를 설정하면 AI가 설득력 있는 문구와 그래픽 구성을 제안합니다.
-              </p>
-            </div>
-
-            {/* Quick Topic Chips */}
-            <div>
-              <label className="block text-xs font-bold text-[#1B4332] mb-2">
-                추천 공익 캠페인 프리셋
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {topicPresets.map((preset, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      setTopic(preset.topic);
-                      setCategory(preset.cat);
-                      setVisualMood(preset.mood);
-                    }}
-                    className="text-xs px-3 py-1.5 rounded-xl bg-[#F8FAFC] hover:bg-[#EBF2EE] border border-[#E2E8F0] text-[#2C3E50] hover:text-[#1B4332] font-medium transition-all text-left"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
+      <AnimatePresence mode="wait">
+        {activeSubTab === 'create' ? (
+          /* CREATE POSTER VIEW */
+          <motion.div
+            key="poster-create-view"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.28 }}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+          >
+            {/* Controls & Prompt Form (Left) */}
+            <div className="lg:col-span-6 space-y-5 bg-white border border-[#E2E8F0] rounded-3xl p-6 shadow-sm">
+              <div>
+                <h3 className="text-lg font-black text-[#1B4332] flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-[#2D6A4F]" />
+                  AI 포스터 콘셉트 기획
+                </h3>
+                <p className="text-xs text-[#52796F] mt-1 font-medium">
+                  주제와 대상, 분위기를 설정하면 AI가 설득력 있는 문구와 그래픽 구성을 제안합니다.
+                </p>
               </div>
-            </div>
+
+              {/* Quick Topic Chips */}
+              <div>
+                <label className="block text-xs font-bold text-[#1B4332] mb-2">
+                  추천 공익 캠페인 프리셋
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {topicPresets.map((preset, idx) => (
+                    <motion.button
+                      key={idx}
+                      type="button"
+                      whileHover={{ scale: 1.04, y: -1 }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => {
+                        setTopic(preset.topic);
+                        setCategory(preset.cat);
+                        setVisualMood(preset.mood);
+                      }}
+                      className="text-xs px-3 py-1.5 rounded-xl bg-[#F8FAFC] hover:bg-[#EBF2EE] border border-[#E2E8F0] text-[#2C3E50] hover:text-[#1B4332] font-medium transition-colors text-left cursor-pointer"
+                    >
+                      {preset.label}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
 
             {/* Topic Input */}
             <div>
@@ -379,15 +393,17 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
             </div>
 
             {/* Generate Action Button */}
-            <button
+            <motion.button
               id="btn-generate-ai-poster"
               onClick={handleGenerateAiPoster}
               disabled={isGenerating}
-              className="w-full py-3 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-black text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+              whileHover={!isGenerating ? { scale: 1.02, y: -1 } : {}}
+              whileTap={!isGenerating ? { scale: 0.98 } : {}}
+              className="w-full py-3.5 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-black text-sm rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               <Sparkles className="w-4 h-4" />
               {isGenerating ? 'AI가 포스터를 기획하고 있습니다...' : 'AI 환경 포스터 자동 기획 & 생성'}
-            </button>
+            </motion.button>
 
             {/* Surgical Quick Customizers for Live Presentation */}
             <div className="pt-4 border-t border-[#E2E8F0] space-y-3">
@@ -409,18 +425,20 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
                   { id: 'recycling-loop', label: '순환 루프' },
                   { id: 'polar-bear', label: '북극곰 빙하' }
                 ].map(g => (
-                  <button
+                  <motion.button
                     key={g.id}
                     type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => setCurrentDraft(prev => ({ ...prev, graphicType: g.id as any }))}
-                    className={`text-[11px] font-bold py-1.5 px-2 rounded-xl border text-center transition-all ${
+                    className={`text-[11px] font-bold py-2 px-2 rounded-xl border text-center transition-colors cursor-pointer ${
                       currentDraft.graphicType === g.id
-                        ? 'bg-[#D8F3DC] text-[#1B4332] border-[#B7E4C7]'
+                        ? 'bg-[#D8F3DC] text-[#1B4332] border-[#B7E4C7] shadow-xs'
                         : 'bg-[#F8FAFC] text-[#52796F] border-[#E2E8F0] hover:text-[#1B4332]'
                     }`}
                   >
                     {g.label}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
 
@@ -432,18 +450,20 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
                   { id: 'minimal-editorial', label: '에디토리얼' },
                   { id: 'impact-badge', label: '배지 액션' }
                 ].map(l => (
-                  <button
+                  <motion.button
                     key={l.id}
                     type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => setCurrentDraft(prev => ({ ...prev, layout: l.id as any }))}
-                    className={`text-[11px] font-bold py-1.5 px-2 rounded-xl border text-center transition-all ${
+                    className={`text-[11px] font-bold py-2 px-2 rounded-xl border text-center transition-colors cursor-pointer ${
                       currentDraft.layout === l.id
-                        ? 'bg-[#D8F3DC] text-[#1B4332] border-[#B7E4C7]'
+                        ? 'bg-[#D8F3DC] text-[#1B4332] border-[#B7E4C7] shadow-xs'
                         : 'bg-[#F8FAFC] text-[#52796F] border-[#E2E8F0] hover:text-[#1B4332]'
                     }`}
                   >
                     {l.label}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
@@ -546,31 +566,40 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
 
             {/* Poster Publication and Download Bar */}
             <div className="w-full max-w-[420px] flex gap-3 mt-4">
-              <button
+              <motion.button
                 id="btn-publish-poster"
                 onClick={handlePublishPoster}
-                className="flex-1 py-3 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-xs rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 py-3 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-bold text-xs rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Send className="w-3.5 h-3.5" />
                 시민 전시관에 등록하기
-              </button>
+              </motion.button>
             </div>
 
             {publishSuccess && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-3 text-xs font-bold text-[#1B4332] bg-[#D8F3DC] border border-[#B7E4C7] px-4 py-2 rounded-xl flex items-center gap-2"
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                className="mt-3 text-xs font-bold text-[#1B4332] bg-[#D8F3DC] border border-[#B7E4C7] px-4 py-2 rounded-xl flex items-center gap-2 shadow-xs"
               >
                 <CheckCircle2 className="w-4 h-4 text-[#2D6A4F]" />
                 성공적으로 전시관에 등록되었습니다! 갤러리로 이동합니다.
               </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
       ) : (
         /* EXHIBITION GALLERY VIEW */
-        <div className="space-y-5">
+        <motion.div
+          key="poster-gallery-view"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.28 }}
+          className="space-y-5"
+        >
           {/* Filter Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 bg-white border border-[#E2E8F0] p-4 rounded-3xl shadow-sm">
             <div className="flex items-center gap-2">
@@ -584,28 +613,32 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
                   { id: 'plastic', label: '자원순환' },
                   { id: 'forest', label: '산림·생태' }
                 ].map(filter => (
-                  <button
+                  <motion.button
                     key={filter.id}
                     onClick={() => setSelectedCategoryFilter(filter.id)}
-                    className={`text-xs px-3 py-1.5 rounded-xl font-bold transition-all ${
+                    whileHover={{ scale: 1.04, y: -1 }}
+                    whileTap={{ scale: 0.96 }}
+                    className={`text-xs px-3 py-1.5 rounded-xl font-bold transition-colors cursor-pointer ${
                       selectedCategoryFilter === filter.id
                         ? 'bg-[#2D6A4F] text-white shadow-xs'
                         : 'bg-[#F8FAFC] text-[#52796F] hover:bg-[#EBF2EE] border border-[#E2E8F0]'
                     }`}
                   >
                     {filter.label}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
 
-            <button
+            <motion.button
               onClick={() => setActiveSubTab('create')}
-              className="flex items-center gap-1.5 text-xs font-bold bg-[#2D6A4F] hover:bg-[#1B4332] text-white px-4 py-2 rounded-xl transition-all shadow-xs cursor-pointer"
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              className="flex items-center gap-1.5 text-xs font-bold bg-[#2D6A4F] hover:bg-[#1B4332] text-white px-4 py-2 rounded-xl shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               나도 포스터 만들기
-            </button>
+            </motion.button>
           </div>
 
           {/* Exhibition Grid */}
@@ -614,9 +647,13 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
               <motion.div
                 key={poster.id}
                 layout
-                whileHover={{ y: -4 }}
+                whileHover={{
+                  y: -6,
+                  scale: 1.015,
+                  transition: { type: 'spring', stiffness: 350, damping: 20 }
+                }}
                 onClick={() => setSelectedPosterForModal(poster)}
-                className="bg-white border border-[#E2E8F0] rounded-3xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer flex flex-col justify-between group transition-all"
+                className="bg-white border border-[#E2E8F0] rounded-3xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer flex flex-col justify-between group transition-shadow"
               >
                 {/* Visual Thumbnail Artboard */}
                 <div
@@ -636,7 +673,7 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
                       primaryColor={poster.palette.primary}
                       secondaryColor={poster.palette.secondary}
                       accentColor={poster.palette.accent}
-                      className="w-28 h-28 drop-shadow-md"
+                      className="w-28 h-28 drop-shadow-md group-hover:scale-105 transition-transform"
                     />
                   </div>
 
@@ -656,137 +693,158 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
                     작성자: <span className="text-[#1B4332] font-bold">{poster.author}</span>
                   </div>
 
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 1.35 }}
                     onClick={e => handleLikePoster(poster.id, e)}
                     className="flex items-center gap-1 text-[#52796F] hover:text-rose-600 transition-colors p-1"
                   >
                     <Heart className="w-4 h-4 fill-rose-500/20 text-rose-500 group-hover:scale-110 transition-transform" />
                     <span className="font-bold text-xs">{poster.likes}</span>
-                  </button>
+                  </motion.button>
                 </div>
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
-      {/* Poster Inspection Detail Modal */}
-      {selectedPosterForModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white border border-[#E2E8F0] rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#E2E8F0]">
-              <h3 className="font-black text-[#1B4332] text-base flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-[#2D6A4F]" />
-                환경 포스터 상세 전시
-              </h3>
-              <button
-                onClick={() => setSelectedPosterForModal(null)}
-                className="text-[#52796F] hover:text-[#1B4332] text-sm font-bold px-2 py-1 cursor-pointer"
-              >
-                닫기
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-              {/* Full Art Preview */}
-              <div className="md:col-span-6 flex justify-center">
-                <div
-                  style={{
-                    backgroundColor: selectedPosterForModal.palette.bg,
-                    color: selectedPosterForModal.palette.text
-                  }}
-                  className="w-full max-w-[340px] aspect-[1/1.414] rounded-3xl border-4 border-[#2C3E50]/20 shadow-xl p-6 flex flex-col justify-between"
+      {/* Poster Inspection Detail Modal with Smooth Spring Entrance */}
+      <AnimatePresence>
+        {selectedPosterForModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+              className="bg-white border border-[#E2E8F0] rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative"
+            >
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#E2E8F0]">
+                <h3 className="font-black text-[#1B4332] text-base flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-[#2D6A4F]" />
+                  환경 포스터 상세 전시
+                </h3>
+                <motion.button
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => setSelectedPosterForModal(null)}
+                  className="text-[#52796F] hover:text-[#1B4332] text-sm font-bold px-2 py-1 cursor-pointer"
                 >
-                  <div className="text-[10px] font-bold tracking-widest opacity-80 uppercase border-b border-white/10 pb-2">
-                    {selectedPosterForModal.category} CAMPAIGN
-                  </div>
+                  닫기
+                </motion.button>
+              </div>
 
-                  <div className="my-2">
-                    <h2 className="text-xl font-black leading-tight whitespace-pre-line">
-                      {selectedPosterForModal.slogan}
-                    </h2>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                {/* Full Art Preview */}
+                <div className="md:col-span-6 flex justify-center">
+                  <div
+                    style={{
+                      backgroundColor: selectedPosterForModal.palette.bg,
+                      color: selectedPosterForModal.palette.text
+                    }}
+                    className="w-full max-w-[340px] aspect-[1/1.414] rounded-3xl border-4 border-[#2C3E50]/20 shadow-xl p-6 flex flex-col justify-between"
+                  >
+                    <div className="text-[10px] font-bold tracking-widest opacity-80 uppercase border-b border-white/10 pb-2">
+                      {selectedPosterForModal.category} CAMPAIGN
+                    </div>
 
-                  <div className="my-auto py-2 flex items-center justify-center">
-                    <PosterGraphics
-                      type={selectedPosterForModal.graphicType}
-                      primaryColor={selectedPosterForModal.palette.primary}
-                      secondaryColor={selectedPosterForModal.palette.secondary}
-                      accentColor={selectedPosterForModal.palette.accent}
-                      className="w-36 h-36"
-                    />
-                  </div>
+                    <div className="my-2">
+                      <h2 className="text-xl font-black leading-tight whitespace-pre-line">
+                        {selectedPosterForModal.slogan}
+                      </h2>
+                    </div>
 
-                  <div className="space-y-2 pt-2 border-t border-white/10">
-                    <p className="text-[10px] opacity-90 leading-relaxed">
-                      {selectedPosterForModal.subtitle}
-                    </p>
-                    <div
-                      className="text-[10px] font-bold px-2.5 py-1 rounded text-center"
-                      style={{
-                        backgroundColor: selectedPosterForModal.palette.primary,
-                        color: '#0F172A'
-                      }}
-                    >
-                      {selectedPosterForModal.callToAction}
+                    <div className="my-auto py-2 flex items-center justify-center">
+                      <PosterGraphics
+                        type={selectedPosterForModal.graphicType}
+                        primaryColor={selectedPosterForModal.palette.primary}
+                        secondaryColor={selectedPosterForModal.palette.secondary}
+                        accentColor={selectedPosterForModal.palette.accent}
+                        className="w-36 h-36"
+                      />
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t border-white/10">
+                      <p className="text-[10px] opacity-90 leading-relaxed">
+                        {selectedPosterForModal.subtitle}
+                      </p>
+                      <div
+                        className="text-[10px] font-bold px-2.5 py-1 rounded text-center"
+                        style={{
+                          backgroundColor: selectedPosterForModal.palette.primary,
+                          color: '#0F172A'
+                        }}
+                      >
+                        {selectedPosterForModal.callToAction}
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Meta information and details */}
+                <div className="md:col-span-6 space-y-4 text-xs">
+                  <div>
+                    <span className="text-[11px] font-bold text-[#2D6A4F]">캠페인 타이틀</span>
+                    <h4 className="text-lg font-black text-[#1B4332] mt-0.5">{selectedPosterForModal.title}</h4>
+                  </div>
+
+                  <div className="bg-[#F8FAFC] p-3.5 rounded-2xl border border-[#E2E8F0] space-y-1.5">
+                    <div className="text-[#52796F] font-medium">슬로건 메시지</div>
+                    <div className="text-sm font-bold text-[#1B4332] whitespace-pre-line">
+                      "{selectedPosterForModal.slogan}"
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-[#52796F] font-medium">환경 실천 행동 지침</div>
+                    <p className="text-[#2C3E50] bg-[#F8FAFC] p-3 rounded-2xl border border-[#E2E8F0] leading-relaxed font-medium">
+                      {selectedPosterForModal.subtitle}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="bg-[#F8FAFC] p-2.5 rounded-xl border border-[#E2E8F0]">
+                      <div className="text-[#52796F] font-medium">기획 제작자</div>
+                      <div className="font-bold text-[#1B4332]">{selectedPosterForModal.author}</div>
+                    </div>
+                    <div className="bg-[#F8FAFC] p-2.5 rounded-xl border border-[#E2E8F0]">
+                      <div className="text-[#52796F] font-medium">전시 등록일</div>
+                      <div className="font-bold text-[#1B4332]">{selectedPosterForModal.createdAt}</div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between">
+                    <motion.button
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => handleLikePoster(selectedPosterForModal.id)}
+                      className="flex items-center gap-2 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl border border-rose-200 transition-colors cursor-pointer"
+                    >
+                      <Heart className="w-4 h-4 fill-rose-500 text-rose-500" />
+                      이 포스터 공감하기 ({selectedPosterForModal.likes})
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setSelectedPosterForModal(null)}
+                      className="px-4 py-2 bg-[#F8FAFC] hover:bg-[#EBF2EE] text-[#2C3E50] border border-[#E2E8F0] font-bold rounded-xl cursor-pointer"
+                    >
+                      전시관으로 돌아가기
+                    </motion.button>
+                  </div>
+                </div>
               </div>
-
-              {/* Meta information and details */}
-              <div className="md:col-span-6 space-y-4 text-xs">
-                <div>
-                  <span className="text-[11px] font-bold text-[#2D6A4F]">캠페인 타이틀</span>
-                  <h4 className="text-lg font-black text-[#1B4332] mt-0.5">{selectedPosterForModal.title}</h4>
-                </div>
-
-                <div className="bg-[#F8FAFC] p-3.5 rounded-2xl border border-[#E2E8F0] space-y-1.5">
-                  <div className="text-[#52796F] font-medium">슬로건 메시지</div>
-                  <div className="text-sm font-bold text-[#1B4332] whitespace-pre-line">
-                    "{selectedPosterForModal.slogan}"
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-[#52796F] font-medium">환경 실천 행동 지침</div>
-                  <p className="text-[#2C3E50] bg-[#F8FAFC] p-3 rounded-2xl border border-[#E2E8F0] leading-relaxed font-medium">
-                    {selectedPosterForModal.subtitle}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
-                  <div className="bg-[#F8FAFC] p-2.5 rounded-xl border border-[#E2E8F0]">
-                    <div className="text-[#52796F] font-medium">기획 제작자</div>
-                    <div className="font-bold text-[#1B4332]">{selectedPosterForModal.author}</div>
-                  </div>
-                  <div className="bg-[#F8FAFC] p-2.5 rounded-xl border border-[#E2E8F0]">
-                    <div className="text-[#52796F] font-medium">전시 등록일</div>
-                    <div className="font-bold text-[#1B4332]">{selectedPosterForModal.createdAt}</div>
-                  </div>
-                </div>
-
-                <div className="pt-2 flex items-center justify-between">
-                  <button
-                    onClick={() => handleLikePoster(selectedPosterForModal.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl border border-rose-200 transition-all cursor-pointer"
-                  >
-                    <Heart className="w-4 h-4 fill-rose-500 text-rose-500" />
-                    이 포스터 공감하기 ({selectedPosterForModal.likes})
-                  </button>
-
-                  <button
-                    onClick={() => setSelectedPosterForModal(null)}
-                    className="px-4 py-2 bg-[#F8FAFC] hover:bg-[#EBF2EE] text-[#2C3E50] border border-[#E2E8F0] font-bold rounded-xl cursor-pointer"
-                  >
-                    전시관으로 돌아가기
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

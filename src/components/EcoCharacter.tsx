@@ -95,17 +95,20 @@ export const EcoCharacter: React.FC<EcoCharacterProps> = ({
             <span>{character.totalEcoPoints.toLocaleString()} P</span>
           </div>
           {onReset && (
-            <button
+            <motion.button
               id="btn-character-card-reset"
               onClick={e => {
                 e.stopPropagation();
                 onReset();
               }}
+              whileHover={{ rotate: 180, scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 15 }}
               title="레벨 및 활동 기록 초기화"
-              className="p-1.5 bg-[#F8FAFC] hover:bg-rose-50 text-[#52796F] hover:text-rose-600 border border-[#E2E8F0] hover:border-rose-300 rounded-full transition-all shadow-xs cursor-pointer"
+              className="p-1.5 bg-[#F8FAFC] hover:bg-rose-50 text-[#52796F] hover:text-rose-600 border border-[#E2E8F0] hover:border-rose-300 rounded-full transition-colors shadow-xs cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-            </button>
+            </motion.button>
           )}
         </div>
       </div>
@@ -266,7 +269,10 @@ export const EcoCharacter: React.FC<EcoCharacterProps> = ({
 
         {/* Vitality & Carbon Reduction stat chips */}
         <div className="grid grid-cols-2 gap-2 pt-1">
-          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-2.5 flex items-center gap-2.5">
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-2.5 flex items-center gap-2.5"
+          >
             <div className="p-1.5 bg-rose-50 text-rose-600 rounded-xl">
               <Heart className="w-4 h-4" />
             </div>
@@ -274,9 +280,12 @@ export const EcoCharacter: React.FC<EcoCharacterProps> = ({
               <div className="text-[10px] text-[#52796F] font-medium">지구 활력 지수</div>
               <div className="text-xs font-bold text-[#2C3E50]">{character.vitality}% 정상</div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-2.5 flex items-center gap-2.5">
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-2.5 flex items-center gap-2.5"
+          >
             <div className="p-1.5 bg-[#D8F3DC] text-[#2D6A4F] rounded-xl">
               <Leaf className="w-4 h-4" />
             </div>
@@ -284,7 +293,7 @@ export const EcoCharacter: React.FC<EcoCharacterProps> = ({
               <div className="text-[10px] text-[#52796F] font-medium">탄소 감축 기여</div>
               <div className="text-xs font-bold text-[#1B4332]">-{character.co2SavedKg.toFixed(1)} kg CO₂</div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Badges Earned */}
@@ -295,13 +304,15 @@ export const EcoCharacter: React.FC<EcoCharacterProps> = ({
           </div>
           <div className="flex flex-wrap gap-1.5">
             {character.badges.map((badge, idx) => (
-              <span
+              <motion.span
                 key={idx}
-                className="text-[11px] font-semibold bg-[#F8FAFC] border border-[#E2E8F0] text-[#2C3E50] px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-xs"
+                whileHover={{ scale: 1.06, y: -1 }}
+                whileTap={{ scale: 0.95 }}
+                className="text-[11px] font-semibold bg-[#F8FAFC] border border-[#E2E8F0] text-[#2C3E50] px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-xs cursor-default"
               >
                 <Award className="w-3 h-3 text-[#2D6A4F]" />
                 {badge}
-              </span>
+              </motion.span>
             ))}
           </div>
         </div>

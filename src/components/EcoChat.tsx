@@ -33,10 +33,15 @@ export const EcoChat: React.FC<EcoChatProps> = ({ onEarnExp }) => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior
+      });
+    }
   };
 
   useEffect(() => {
@@ -155,14 +160,16 @@ export const EcoChat: React.FC<EcoChatProps> = ({ onEarnExp }) => {
           </div>
         </div>
 
-        <button
+        <motion.button
           id="btn-clear-chat"
           onClick={handleResetChat}
-          className="flex items-center gap-1.5 text-xs text-[#52796F] hover:text-[#1B4332] bg-[#F8FAFC] hover:bg-[#EBF2EE] px-3 py-1.5 rounded-xl border border-[#E2E8F0] transition-all cursor-pointer font-medium"
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+          className="flex items-center gap-1.5 text-xs text-[#52796F] hover:text-[#1B4332] bg-[#F8FAFC] hover:bg-[#EBF2EE] px-3 py-1.5 rounded-xl border border-[#E2E8F0] transition-colors cursor-pointer font-medium"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           대화 초기화
-        </button>
+        </motion.button>
       </div>
 
       {/* Suggested Quick Question Chips */}
@@ -172,25 +179,28 @@ export const EcoChat: React.FC<EcoChatProps> = ({ onEarnExp }) => {
           추천 질문:
         </span>
         {quickQuestions.map((q, idx) => (
-          <button
+          <motion.button
             key={idx}
             type="button"
             onClick={() => handleSend(q.query)}
             disabled={isLoading}
-            className="text-xs bg-[#F8FAFC] hover:bg-[#EBF2EE] border border-[#E2E8F0] text-[#2C3E50] hover:text-[#1B4332] px-3 py-1.5 rounded-xl font-medium transition-all cursor-pointer"
+            whileHover={{ scale: 1.04, y: -1 }}
+            whileTap={{ scale: 0.96 }}
+            className="text-xs bg-[#F8FAFC] hover:bg-[#EBF2EE] border border-[#E2E8F0] text-[#2C3E50] hover:text-[#1B4332] px-3 py-1.5 rounded-xl font-medium transition-colors cursor-pointer disabled:opacity-50"
           >
             {q.label}
-          </button>
+          </motion.button>
         ))}
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
         {messages.map(msg => (
           <motion.div
             key={msg.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
             className={`flex items-start gap-3 ${
               msg.role === 'user' ? 'justify-end' : 'justify-start'
             }`}
@@ -232,18 +242,20 @@ export const EcoChat: React.FC<EcoChatProps> = ({ onEarnExp }) => {
         ))}
 
         {isLoading && (
-          <div className="flex items-start gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-start gap-3"
+          >
             <div className="w-8 h-8 rounded-xl bg-[#D8F3DC] border border-[#B7E4C7] flex items-center justify-center text-[#2D6A4F] shrink-0">
-              <Leaf className="w-4 h-4 animate-pulse" />
+              <Leaf className="w-4 h-4 animate-bounce" />
             </div>
             <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl rounded-tl-none p-4 text-xs text-[#52796F] flex items-center gap-2 font-medium">
               <span className="inline-block w-2 h-2 rounded-full bg-[#2D6A4F] animate-ping" />
               환경 데이터를 분석하여 답변을 구성하고 있습니다...
             </div>
-          </div>
+          </motion.div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Composer Box */}
@@ -261,15 +273,17 @@ export const EcoChat: React.FC<EcoChatProps> = ({ onEarnExp }) => {
           placeholder="환경, 기후위기, 분리배출에 대해 궁금한 점을 질문해보세요..."
           className="flex-1 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl px-4 py-3 text-xs text-[#2C3E50] placeholder-[#718096] focus:outline-none focus:border-[#2D6A4F] transition-all"
         />
-        <button
+        <motion.button
           id="btn-chat-send"
           type="submit"
           disabled={isLoading || !input.trim()}
-          className="px-5 py-3 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-black text-xs rounded-xl transition-all disabled:opacity-40 flex items-center gap-1.5 shadow-sm cursor-pointer"
+          whileHover={!isLoading && input.trim() ? { scale: 1.04, y: -1 } : {}}
+          whileTap={!isLoading && input.trim() ? { scale: 0.96 } : {}}
+          className="px-5 py-3 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-black text-xs rounded-xl transition-colors disabled:opacity-40 flex items-center gap-1.5 shadow-sm cursor-pointer"
         >
           <Send className="w-3.5 h-3.5" />
           전송
-        </button>
+        </motion.button>
       </form>
     </div>
   );
