@@ -327,14 +327,32 @@ export const ClimateEducation: React.FC<ClimateEducationProps> = ({ onEarnExp })
           {/* Main Video Player & Summary (Left) */}
           <div className="lg:col-span-8 space-y-4">
             {/* Embedded YouTube Iframe Container */}
-            <div className="aspect-video w-full rounded-3xl overflow-hidden bg-black border border-[#E2E8F0] shadow-xl">
+            <div className="aspect-video w-full rounded-3xl overflow-hidden bg-black border border-[#E2E8F0] shadow-xl relative group">
               <iframe
-                src={`https://www.youtube-nocookie.com/embed/${selectedVideo.youtubeId}?rel=0`}
+                key={selectedVideo.youtubeId}
+                src={`https://www.youtube.com/embed/${selectedVideo.youtubeId}?rel=0`}
                 title={selectedVideo.title}
                 className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
+            </div>
+
+            {/* Direct Open in YouTube Notice & Action */}
+            <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl text-xs text-[#52796F]">
+              <div className="flex items-center gap-1.5 font-medium">
+                <Play className="w-3.5 h-3.5 text-[#2D6A4F]" />
+                <span>공익 교육 영상은 위 플레이어에서 즉시 시청하실 수 있습니다.</span>
+              </div>
+              <a
+                href={`https://www.youtube.com/watch?v=${selectedVideo.youtubeId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-bold text-[#2D6A4F] hover:text-[#1B4332] hover:underline"
+              >
+                <span>YouTube에서 고화질로 시청</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
 
             {/* Video Meta & Summary Details */}
