@@ -13,6 +13,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { ChatMessage } from '../types';
+import { generateClientFallbackChat } from '../services/ecoClientService';
 
 interface EcoChatProps {
   onEarnExp: (exp: number, points: number) => void;
@@ -70,33 +71,51 @@ export const EcoChat: React.FC<EcoChatProps> = ({ onEarnExp }) => {
         content: m.content
       }));
 
-      const res = await fetch('/api/gemini/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: textToSend,
-          history: historyPayload
-        })
-      });
+      let replyText = '';
+      let sourceTag = 'gemini';
 
-      const data = await res.json();
+      try {
+        const res = await fetch('/api/gemini/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: textToSend,
+            history: historyPayload
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          replyText = data.reply || '';
+          sourceTag = data.source || 'gemini';
+        } else {
+          replyText = generateClientFallbackChat(textToSend);
+          sourceTag = 'eco-knowledge';
+        }
+      } catch {
+        replyText = generateClientFallbackChat(textToSend);
+        sourceTag = 'eco-knowledge';
+      }
+
       const botMessage: ChatMessage = {
         id: `bot-${Date.now()}`,
         role: 'assistant',
-        content: data.reply || '답변을 생성하지 못했습니다. 다시 시도해주세요.',
+        content: replyText || generateClientFallbackChat(textToSend),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        source: data.source
+        source: sourceTag
       };
 
       setMessages(prev => [...prev, botMessage]);
       onEarnExp(15, 30);
     } catch (err) {
       console.error('Chat error:', err);
+      const fallbackReply = generateClientFallbackChat(textToSend);
       const errorMessage: ChatMessage = {
         id: `bot-err-${Date.now()}`,
         role: 'assistant',
-        content: '네트워크 연결 상태를 확인해주세요. 지속가능한 환경을 위한 질문에 항상 열려있습니다.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        content: fallbackReply,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        source: 'eco-knowledge'
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {

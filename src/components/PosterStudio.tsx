@@ -16,6 +16,11 @@ import {
 } from 'lucide-react';
 import { PosterItem } from '../types';
 import { PosterGraphics } from './PosterGraphics';
+import {
+  getLocalPosters,
+  saveLocalPosters,
+  generateClientPosterSpec
+} from '../services/ecoClientService';
 
 interface PosterStudioProps {
   onEarnExp: (exp: number, points: number) => void;
@@ -23,7 +28,7 @@ interface PosterStudioProps {
 
 export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
   const [activeSubTab, setActiveSubTab] = useState<'create' | 'gallery'>('create');
-  const [posters, setPosters] = useState<PosterItem[]>([]);
+  const [posters, setPosters] = useState<PosterItem[]>(() => getLocalPosters());
   const [isLoadingPosters, setIsLoadingPosters] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
@@ -67,15 +72,22 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
     setIsLoadingPosters(true);
     try {
       const res = await fetch('/api/posters');
-      const data = await res.json();
-      if (data.posters && Array.isArray(data.posters)) {
-        setPosters(data.posters);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.posters && Array.isArray(data.posters)) {
+          setPosters(data.posters);
+          saveLocalPosters(data.posters);
+          return;
+        }
       }
     } catch (err) {
-      console.error('Failed to load posters:', err);
+      console.warn('Backend posters not reachable, using local storage cache.');
     } finally {
       setIsLoadingPosters(false);
     }
+    // Fallback to local storage
+    const cached = getLocalPosters();
+    setPosters(cached);
   };
 
   useEffect(() => {
@@ -96,44 +108,57 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
     setPublishSuccess(false);
 
     try {
-      const res = await fetch('/api/gemini/poster-ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          topic: topic || '기후위기 극복과 탄소중립',
-          category,
-          targetAudience,
-          visualMood
-        })
-      });
+      let spec: any = null;
 
-      const data = await res.json();
-      if (data.spec) {
-        const spec = data.spec;
-        setCurrentDraft({
-          id: `draft-${Date.now()}`,
-          title: spec.title || '기후 행동 포스터',
-          slogan: spec.slogan || '지구를 위한 오늘의 실천',
-          subtitle: spec.subtitle || '작은 변화가 지구의 내일을 바꿉니다.',
-          author: authorName,
-          category: category,
-          createdAt: new Date().toISOString().split('T')[0],
-          likes: 0,
-          layout: spec.layout || 'bold-center',
-          palette: spec.palette || {
-            bg: '#0F172A',
-            primary: '#10B981',
-            secondary: '#1E293B',
-            accent: '#38BDF8',
-            text: '#FFFFFF'
-          },
-          graphicType: spec.graphicType || 'earth-melting',
-          callToAction: spec.callToAction || '함께 행동해요',
-          factTag: spec.factTag || '탄소중립 실천 가이드'
+      try {
+        const res = await fetch('/api/gemini/poster-ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic: topic || '기후위기 극복과 탄소중립',
+            category,
+            targetAudience,
+            visualMood
+          })
         });
 
-        onEarnExp(30, 80);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.spec) {
+            spec = data.spec;
+          }
+        }
+      } catch {
+        // Fallback below
       }
+
+      if (!spec) {
+        spec = generateClientPosterSpec(topic, category, visualMood);
+      }
+
+      setCurrentDraft({
+        id: `draft-${Date.now()}`,
+        title: spec.title || '기후 행동 포스터',
+        slogan: spec.slogan || '지구를 위한 오늘의 실천',
+        subtitle: spec.subtitle || '작은 변화가 지구의 내일을 바꿉니다.',
+        author: authorName,
+        category: category,
+        createdAt: new Date().toISOString().split('T')[0],
+        likes: 0,
+        layout: spec.layout || 'bold-center',
+        palette: spec.palette || {
+          bg: '#0F172A',
+          primary: '#10B981',
+          secondary: '#1E293B',
+          accent: '#38BDF8',
+          text: '#FFFFFF'
+        },
+        graphicType: spec.graphicType || 'earth-melting',
+        callToAction: spec.callToAction || '함께 행동해요',
+        factTag: spec.factTag || '탄소중립 실천 가이드'
+      });
+
+      onEarnExp(30, 80);
     } catch (err) {
       console.error('AI Poster generation error:', err);
     } finally {
@@ -145,28 +170,37 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
   const handlePublishPoster = async () => {
     if (!currentDraft.title || !currentDraft.slogan) return;
 
-    try {
-      const payload = {
-        ...currentDraft,
-        author: authorName || '시민 에코 크리에이터'
-      };
+    const newPoster: PosterItem = {
+      ...currentDraft,
+      id: `poster-${Date.now()}`,
+      author: authorName || '시민 에코 크리에이터',
+      createdAt: new Date().toISOString().split('T')[0],
+      likes: 1
+    };
 
-      const res = await fetch('/api/posters', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+    try {
+      try {
+        await fetch('/api/posters', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newPoster)
+        });
+      } catch {
+        // Static hosting graceful continuation
+      }
+
+      setPosters(prev => {
+        const updated = [newPoster, ...prev];
+        saveLocalPosters(updated);
+        return updated;
       });
 
-      const data = await res.json();
-      if (data.success && data.poster) {
-        setPosters(prev => [data.poster, ...prev]);
-        setPublishSuccess(true);
-        onEarnExp(50, 150);
-        setTimeout(() => {
-          setActiveSubTab('gallery');
-          setPublishSuccess(false);
-        }, 1200);
-      }
+      setPublishSuccess(true);
+      onEarnExp(50, 150);
+      setTimeout(() => {
+        setActiveSubTab('gallery');
+        setPublishSuccess(false);
+      }, 1200);
     } catch (err) {
       console.error('Publish error:', err);
     }
@@ -176,17 +210,26 @@ export const PosterStudio: React.FC<PosterStudioProps> = ({ onEarnExp }) => {
   const handleLikePoster = async (posterId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
-      const res = await fetch(`/api/posters/${posterId}/like`, { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        setPosters(prev =>
-          prev.map(p => (p.id === posterId ? { ...p, likes: data.likes } : p))
-        );
-        if (selectedPosterForModal && selectedPosterForModal.id === posterId) {
-          setSelectedPosterForModal(prev => prev ? { ...prev, likes: data.likes } : null);
-        }
-        onEarnExp(5, 10);
+      try {
+        await fetch(`/api/posters/${posterId}/like`, { method: 'POST' });
+      } catch {
+        // Static hosting graceful continuation
       }
+
+      setPosters(prev => {
+        const updated = prev.map(p =>
+          p.id === posterId ? { ...p, likes: p.likes + 1 } : p
+        );
+        saveLocalPosters(updated);
+        return updated;
+      });
+
+      if (selectedPosterForModal && selectedPosterForModal.id === posterId) {
+        setSelectedPosterForModal(prev =>
+          prev ? { ...prev, likes: prev.likes + 1 } : null
+        );
+      }
+      onEarnExp(5, 10);
     } catch (err) {
       console.error('Like error:', err);
     }
