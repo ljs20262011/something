@@ -76,7 +76,7 @@ export interface LearningVideo {
   id: string;
   title: string;
   channel: string;
-  category: '지구온난화' | '해수면상승' | '탄소중립' | '재활용과학';
+  category: '지구온난화' | '해수면상승' | '탄소중립' | '재활용과학' | '생태계보존';
   duration: string;
   youtubeId: string;
   summary: string;

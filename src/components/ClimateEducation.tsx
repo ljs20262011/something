@@ -327,25 +327,38 @@ export const ClimateEducation: React.FC<ClimateEducationProps> = ({ onEarnExp })
           {/* Main Video Player & Summary (Left) */}
           <div className="lg:col-span-8 space-y-4">
             {/* Embedded YouTube Iframe Container */}
-            <div className="aspect-video w-full rounded-3xl overflow-hidden bg-black border border-[#E2E8F0] shadow-xl">
+            <div className="relative aspect-video w-full rounded-3xl overflow-hidden bg-black border border-[#E2E8F0] shadow-xl">
               <iframe
-                src={`https://www.youtube-nocookie.com/embed/${selectedVideo.youtubeId}?rel=0`}
+                key={selectedVideo.youtubeId}
+                src={`https://www.youtube.com/embed/${selectedVideo.youtubeId}?rel=0&enablejsapi=1`}
                 title={selectedVideo.title}
                 className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
             </div>
 
             {/* Video Meta & Summary Details */}
             <div className="bg-white border border-[#E2E8F0] rounded-3xl p-6 space-y-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#D8F3DC] text-[#1B4332] border border-[#B7E4C7]">
-                  {selectedVideo.category}
-                </span>
-                <span className="text-xs text-[#52796F] font-mono">
-                  재생시간: {selectedVideo.duration}
-                </span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#D8F3DC] text-[#1B4332] border border-[#B7E4C7]">
+                    {selectedVideo.category}
+                  </span>
+                  <span className="text-xs text-[#52796F] font-mono">
+                    재생시간: {selectedVideo.duration}
+                  </span>
+                </div>
+                <a
+                  href={`https://www.youtube.com/watch?v=${selectedVideo.youtubeId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F8FAFC] hover:bg-[#E2E8F0] text-[#1B4332] text-xs font-bold border border-[#E2E8F0] transition-colors"
+                  id={`open-youtube-${selectedVideo.id}`}
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-[#2D6A4F]" />
+                  <span>YouTube에서 시청</span>
+                </a>
               </div>
 
               <div>
@@ -404,6 +417,11 @@ export const ClimateEducation: React.FC<ClimateEducationProps> = ({ onEarnExp })
                   </div>
 
                   <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#EDF2F7] text-[#2D3748]">
+                        {video.category}
+                      </span>
+                    </div>
                     <div className="text-xs font-bold line-clamp-2 leading-snug">
                       {video.title}
                     </div>
